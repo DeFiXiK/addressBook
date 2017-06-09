@@ -42,7 +42,7 @@ readFromConsole = do
 
 find :: [PhoneRecord] -> Name -> Maybe Phone
 find [] _ = Nothing
-find list name 
+find list name
   | name == getName h = Just $ getPhone h
   | otherwise = find (tail list) name
   where h = head list
@@ -58,7 +58,7 @@ findUI list = do
 
 deleteRecord :: [PhoneRecord] -> Name -> [PhoneRecord]
 deleteRecord [] _ = []
-deleteRecord base name 
+deleteRecord base name
   | name == getName h = tail base
   | otherwise = h:deleteRecord (tail base) name
   where h = head base
