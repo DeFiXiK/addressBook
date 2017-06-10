@@ -3,17 +3,19 @@ module Main where
 import           Data.String.Utils
 import           Text.Read         (readMaybe)
 
-data PhoneRecord = PhoneRecord {
-  name,
-  phone :: String
-} deriving (Show)
+type Name = String
+type Phone = String
+data PhoneRecord = PhoneRecord
+  { name  :: Name
+  , phone :: Phone
+  } deriving (Show)
 
-addNewPhoneRecord :: (String, String) -> [PhoneRecord] -> [PhoneRecord]
+addNewPhoneRecord :: (Name, Phone) -> [PhoneRecord] -> [PhoneRecord]
 addNewPhoneRecord (name, phone) old =
-  old ++ [PhoneRecord {
-    name = name,
-    phone = phone
-  }]
+  old ++ [PhoneRecord
+    { name = name
+    , phone = phone
+    }]
 
 addNewPhoneRecordUI :: [PhoneRecord] -> IO [PhoneRecord]
 addNewPhoneRecordUI base = do
@@ -25,11 +27,11 @@ addNewPhoneRecordUI base = do
       putStrLn "Ошибка добавления новой записи"
       return base
 
-parse :: [String] -> Maybe (String, String)
+parse :: [String] -> Maybe (Name, Phone)
 parse [x, y] = Just (x, y)
 parse _      = Nothing
 
-readFromConsole :: IO (Maybe (String, String))
+readFromConsole :: IO (Maybe (Name, Phone))
 readFromConsole = do
   line <- getLine
   let phr = split " " line
@@ -37,7 +39,7 @@ readFromConsole = do
 
 -- Сортировочку <- от пакета Data.List
 
-find :: [PhoneRecord] -> String -> Maybe String
+find :: [PhoneRecord] -> Name -> Maybe Phone
 find [] _ = Nothing
 find list iName
   | iName == name h = Just $ phone h
@@ -53,7 +55,7 @@ findUI list = do
     Just phone -> putStrLn $ "Найденый телефон: " ++ phone
     Nothing    -> putStrLn "Ничего не найдено"
 
-deleteRecord :: [PhoneRecord] -> String -> [PhoneRecord]
+deleteRecord :: [PhoneRecord] -> Name -> [PhoneRecord]
 deleteRecord [] _ = []
 deleteRecord base iName
   | iName == name h = tail base
@@ -71,7 +73,7 @@ deleteRecordUI base = do
       putStrLn "Запись не найдена"
       return base
 
-editRecord :: [PhoneRecord] -> String -> String -> [PhoneRecord]
+editRecord :: [PhoneRecord] -> Name -> Phone -> [PhoneRecord]
 editRecord [] _ _ = []
 editRecord base iName iPhone
   | iName == name h = PhoneRecord iName iPhone : tail base
