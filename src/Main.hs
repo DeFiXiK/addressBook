@@ -1,22 +1,19 @@
 module Main where
 
-import Data.String.Utils
-import Text.Read (readMaybe)
+import           Data.String.Utils
+import           Text.Read         (readMaybe)
 
-type Name = String
-type Phone = String
-data PhoneRecord = PhoneRecord Name Phone
-  deriving (Show)
+data PhoneRecord = PhoneRecord {
+  name,
+  phone :: String
+} deriving (Show)
 
-getName :: PhoneRecord -> Name
-getName (PhoneRecord n _) = n
-
-getPhone :: PhoneRecord -> Phone
-getPhone (PhoneRecord _ p) = p
-
-addNewPhoneRecord :: (Name, Phone) -> [PhoneRecord] -> [PhoneRecord]
+addNewPhoneRecord :: (String, String) -> [PhoneRecord] -> [PhoneRecord]
 addNewPhoneRecord (name, phone) old =
-  old ++ [PhoneRecord name phone]
+  old ++ [PhoneRecord {
+    name = name,
+    phone = phone
+  }]
 
 addNewPhoneRecordUI :: [PhoneRecord] -> IO [PhoneRecord]
 addNewPhoneRecordUI base = do
@@ -28,11 +25,11 @@ addNewPhoneRecordUI base = do
       putStrLn "Ошибка добавления новой записи"
       return base
 
-parse :: [String] -> Maybe (Name, Phone)
+parse :: [String] -> Maybe (String, String)
 parse [x, y] = Just (x, y)
-parse _ = Nothing
+parse _      = Nothing
 
-readFromConsole :: IO (Maybe (Name, Phone))
+readFromConsole :: IO (Maybe (String, String))
 readFromConsole = do
   line <- getLine
   let phr = split " " line
@@ -40,11 +37,11 @@ readFromConsole = do
 
 -- Сортировочку <- от пакета Data.List
 
-find :: [PhoneRecord] -> Name -> Maybe Phone
+find :: [PhoneRecord] -> String -> Maybe String
 find [] _ = Nothing
-find list name
-  | name == getName h = Just $ getPhone h
-  | otherwise = find (tail list) name
+find list iName
+  | iName == name h = Just $ phone h
+  | otherwise = find (tail list) iName
   where h = head list
 
 findUI :: [PhoneRecord] -> IO ()
@@ -54,13 +51,13 @@ findUI list = do
   let result = find list input
   case result of
     Just phone -> putStrLn $ "Найденый телефон: " ++ phone
-    Nothing -> putStrLn "Ничего не найдено"
+    Nothing    -> putStrLn "Ничего не найдено"
 
-deleteRecord :: [PhoneRecord] -> Name -> [PhoneRecord]
+deleteRecord :: [PhoneRecord] -> String -> [PhoneRecord]
 deleteRecord [] _ = []
-deleteRecord base name
-  | name == getName h = tail base
-  | otherwise = h:deleteRecord (tail base) name
+deleteRecord base iName
+  | iName == name h = tail base
+  | otherwise = h:deleteRecord (tail base) iName
   where h = head base
 
 deleteRecordUI :: [PhoneRecord] -> IO [PhoneRecord]
@@ -74,11 +71,11 @@ deleteRecordUI base = do
       putStrLn "Запись не найдена"
       return base
 
-editRecord :: [PhoneRecord] -> Name -> Phone -> [PhoneRecord]
+editRecord :: [PhoneRecord] -> String -> String -> [PhoneRecord]
 editRecord [] _ _ = []
-editRecord base name phone
-  | name == getName h = PhoneRecord name phone : tail base
-  | otherwise = h:editRecord(tail base) name phone
+editRecord base iName iPhone
+  | iName == name h = PhoneRecord iName iPhone : tail base
+  | otherwise = h:editRecord(tail base) iName iPhone
   where h = head base
 
 editRecordUI :: [PhoneRecord] -> IO [PhoneRecord]
@@ -94,7 +91,7 @@ editRecordUI base = do
 showBase :: [PhoneRecord] -> IO ()
 showBase [] = putStrLn "На этом все..."
 showBase (x:xs) = do
-  putStrLn $ getName x ++ " " ++ getPhone x
+  putStrLn $ name x ++ " " ++ phone x
   showBase xs
 
 
